@@ -30,7 +30,7 @@ async function onRequestPost({ request, env }) {
   // Each *_API_KEY variable may hold several keys separated by commas.
   const sources = [
     ["groq", "https://api.groq.com/openai/v1/chat/completions", [env.GROQ_MODEL, "llama-3.3-70b-versatile", "llama-3.1-8b-instant"], env.GROQ_API_KEY],
-    ["gemini", "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", [env.GEMINI_MODEL, "gemini-flash-latest", "gemini-2.5-flash", "gemini-2.5-flash-lite"], env.GEMINI_API_KEY],
+    ["gemini", "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", [env.GEMINI_MODEL, "gemini-flash-latest", "Gemini-2-Flash", "gemini-2.5-flash-lite"], env.GEMINI_API_KEY],
     ["openrouter", "https://openrouter.ai/api/v1/chat/completions", [env.OPENROUTER_MODEL, "meta-llama/llama-3.3-70b-instruct:free"], env.OPENROUTER_API_KEY]
   ];
   const notes = [];
