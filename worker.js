@@ -29,25 +29,35 @@ async function onRequestPost({ request, env }) {
   // Providers are tried in order. If one hits its limit or fails, the next one is used.
   // Each *_API_KEY variable may hold several keys separated by commas.
   const sources = [
-    ["https://api.groq.com/openai/v1/chat/completions", env.GROQ_MODEL || "llama-3.3-70b-versatile", env.GROQ_API_KEY],
-    ["https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", env.GEMINI_MODEL || "gemini-2.5-flash", env.GEMINI_API_KEY],
-    ["https://openrouter.ai/api/v1/chat/completions", env.OPENROUTER_MODEL || "meta-llama/llama-3.3-70b-instruct:free", env.OPENROUTER_API_KEY]
+    ["groq", "https://api.groq.com/openai/v1/chat/completions", [env.GROQ_MODEL, "llama-3.3-70b-versatile", "llama-3.1-8b-instant"], env.GROQ_API_KEY],
+    ["gemini", "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", [env.GEMINI_MODEL, "gemini-flash-latest", "gemini-2.5-flash", "gemini-2.5-flash-lite"], env.GEMINI_API_KEY],
+    ["openrouter", "https://openrouter.ai/api/v1/chat/completions", [env.OPENROUTER_MODEL, "meta-llama/llama-3.3-70b-instruct:free"], env.OPENROUTER_API_KEY]
   ];
-  for (const [url, model, keys] of sources) {
-    for (const key of String(keys || "").split(",").map(s => s.trim()).filter(Boolean)) {
-      try {
-        const r = await fetch(url, {
-          method: "POST", signal: AbortSignal.timeout(28000),
-          headers: { Authorization: "Bearer " + key, "Content-Type": "application/json" },
-          body: JSON.stringify({ model, messages: [{ role: "system", content: system }, ...messages], max_tokens: b.mode === "lesson" ? 2200 : 500, temperature: 0.6 })
-        });
-        if (!r.ok) continue;
-        const j = await r.json(), text = j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
-        if (text) return J({ text });
-      } catch (e) {}
+  const notes = [];
+  for (const [name, url, models, keys] of sources) {
+    const list = String(keys || "").split(",").map(s => s.trim().replace(/^["']|["']$/g, "")).filter(Boolean);
+    if (!list.length) { notes.push(name + ": no key found"); continue; }
+    for (const key of list) {
+      for (const model of [...new Set(models.filter(Boolean))]) {
+        try {
+          const r = await fetch(url, {
+            method: "POST", signal: AbortSignal.timeout(28000),
+            headers: { Authorization: "Bearer " + key, "Content-Type": "application/json" },
+            body: JSON.stringify({ model, messages: [{ role: "system", content: system }, ...messages], max_tokens: b.mode === "lesson" ? 2200 : 500, temperature: 0.6 })
+          });
+          if (r.ok) {
+            const j = await r.json(), text = j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
+            if (text) return J({ text });
+            notes.push(name + " " + model + " empty reply");
+            continue;
+          }
+          notes.push(name + " " + model + " " + r.status + " " + (await r.text()).replace(/\s+/g, " ").slice(0, 110));
+          if (r.status === 401 || r.status === 403) break;
+        } catch (e) { notes.push(name + " " + model + " no response"); }
+      }
     }
   }
-  return J({ error: "Nesty AI is busy right now. Please try again in a minute." }, 503);
+  return J({ error: "Nesty AI is busy right now. Details: " + notes.join(" | ") }, 503);
 }
 
 export default {
