@@ -10,7 +10,7 @@ const GI = `<svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="
 /* ---------- Helpers ---------- */
 function view(h) { clearInterval(tm); app.innerHTML = h; scrollTo(0, 0); }
 const msg = (t, ok) => { const m = $("#msg"); if (m) { m.textContent = t; m.className = "msg" + (ok ? " ok" : ""); } };
-const shell = (title, body) => view(`<section class="card"><img class="mark" src="logo.svg" alt="Nesty Languages"><h1>${title}</h1>${body}<p id="msg" class="msg" role="alert"></p></section>`);
+const shell = (title, body) => view(`<section class="card"><img class="mark" src="logo.svg" alt="Nesty Languages"><h1>${title}</h1>${body}<p id="msg" class="msg" role="alert"></p><p class="ver">Nesty Languages ${VERSION}</p></section>`);
 const sendCode = (id, em) => account.createEmailToken(id, em);
 
 /* ---------- Sign in ---------- */
@@ -242,13 +242,14 @@ function frame(inner, tab, title) {
 const go = t => ({ learn, ai: () => chat("chat"), prog: progress })[t]();
 function drawer() {
   const d = document.createElement("div"); d.className = "sheet";
-  d.innerHTML = `<aside class="drw"><div class="drh">${av(U.prefs)}<div><b>${esc(U.name)}</b><small>${esc(U.email)}</small></div></div>${[["set", "⚙️", "Settings"], ["plan", "📅", "Study plan"], ["help", "🛟", "Help Center"], ["terms", "📄", "Terms of Service"], ["privacy", "🔒", "Privacy Policy"], ["out", "🚪", "Sign out"]].map(([k, i, l]) => `<button data-m="${k}"><i>${i}</i>${l}</button>`).join("")}</aside>`;
+  d.innerHTML = `<aside class="drw"><div class="drh">${av(U.prefs)}<div><b>${esc(U.name)}</b><small>${esc(U.email)}</small></div></div>${[["set", "⚙️", "Settings"], ["plan", "📅", "Study plan"], ["about", "ℹ️", "About and updates"], ["help", "🛟", "Help Center"], ["terms", "📄", "Terms of Service"], ["privacy", "🔒", "Privacy Policy"], ["out", "🚪", "Sign out"]].map(([k, i, l]) => `<button data-m="${k}"><i>${i}</i>${l}</button>`).join("")}<p class="ver">Nesty Languages ${VERSION}</p></aside>`;
   d.onclick = async e => {
     const b = e.target.closest("[data-m]");
     if (!b) { if (e.target === d) d.remove(); return; }
     const k = b.dataset.m; d.remove();
     if (k === "set") settings();
     else if (k === "plan") plan();
+    else if (k === "about") about();
     else if (k === "help") chat("help");
     else if (k === "out") { try { await account.deleteSession("current"); } catch (er) {} U = null; signIn(); }
     else sheet(LEGAL[k].t, LEGAL[k].h);
@@ -422,13 +423,13 @@ function chat(mode) {
   const ml = () => { if ($("#ml")) $("#ml").textContent = "🎤 Speaking " + P()[micLang] + " · tap to change"; };
   ml(); if ($("#ml")) $("#ml").onclick = () => { micLang = micLang === "to" ? "from" : "to"; ml(); };
   const add = (r, t) => {
-    const d = document.createElement("div"); d.className = "msg " + r;
+    const d = document.createElement("div"); d.className = "cm " + r;
     if (r === "a") {
       d.innerHTML = `<span class="av2">${BOT}</span><div class="bd"><div class="tx"></div>${help ? "" : `<div class="act"><button data-s="1" aria-label="Listen">🔊</button><button data-cp="1" aria-label="Copy">📋</button></div>`}</div>`;
-      d.querySelector(".tx").textContent = t;
+      d.querySelector(".tx").innerHTML = md(t);
       const s = d.querySelector("[data-s]"), c = d.querySelector("[data-cp]");
       if (s) s.onclick = () => say(t, P().to);
-      if (c) c.onclick = () => { try { navigator.clipboard.writeText(t); c.textContent = "✓"; } catch (e) {} };
+      if (c) c.onclick = () => { try { navigator.clipboard.writeText(t); c.textContent = "✓"; } catch (e) { const a = document.createElement("textarea"); a.value = t; document.body.appendChild(a); a.select(); try { document.execCommand("copy"); c.textContent = "✓"; } catch (er) {} a.remove(); } };
     } else d.textContent = t;
     log.appendChild(d); d.scrollIntoView({ block: "end" });
   };
@@ -438,7 +439,7 @@ function chat(mode) {
     txt = (txt || "").trim(); if (!txt || busy) return;
     busy = true; inp.value = ""; inp.style.height = "auto"; $("#empty").style.display = "none";
     add("u", txt); hist.push({ role: "user", content: txt });
-    const ty = document.createElement("div"); ty.className = "msg a"; ty.innerHTML = `<span class="av2">${BOT}</span><div class="dots2"><i></i><i></i><i></i></div>`;
+    const ty = document.createElement("div"); ty.className = "cm a"; ty.innerHTML = `<span class="av2">${BOT}</span><div class="dots2"><i></i><i></i><i></i></div>`;
     log.appendChild(ty); ty.scrollIntoView({ block: "end" });
     try {
       const t = await ai(help ? "help" : "chat", { from: P().from, to: P().to, level: lvlName(), messages: hist.slice(-10) });
@@ -533,6 +534,44 @@ function plan() {
   const keep = async () => { if (!d.length) { msg("Choose at least one day."); return null; } const t = $("#t2").value || "18:00"; await save({ sp: { d, t } }); return t; };
   $("#sv").onclick = async () => { if (await keep()) msg("Plan saved.", true); };
   $("#ics").onclick = async () => { const t = await keep(); if (t) { download(d, t); msg("Open the downloaded file to add it to your calendar.", true); } };
+}
+
+/* ---------- Formatting for AI replies (tables, bold, lists, code) ---------- */
+function md(src) {
+  const inl = x => esc(x).replace(/`([^`]+)`/g, "<code>$1</code>").replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/(^|[\s(])\*([^*\s][^*]*?)\*(?=[\s).,!?:;]|$)/g, "$1<i>$2</i>");
+  const L = String(src).replace(/\r/g, "").split("\n"), out = [];
+  const cells = l => l.trim().replace(/^\||\|$/g, "").split("|").map(x => x.trim());
+  const sep = /^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$/, ul = /^\s*[-*•]\s+/, ol = /^\s*\d+[.)]\s+/;
+  const stop = /^(```|#{1,4}\s|\s*\|)|^\s*([-*•]|\d+[.)])\s+/;
+  let i = 0;
+  while (i < L.length) {
+    const l = L[i];
+    if (/^```/.test(l)) { const b = []; i++; while (i < L.length && !/^```/.test(L[i])) b.push(L[i++]); i++; out.push("<pre><code>" + esc(b.join("\n")) + "</code></pre>"); }
+    else if (/^\s*\|/.test(l) && i + 1 < L.length && sep.test(L[i + 1])) {
+      const head = cells(l), rows = []; i += 2;
+      while (i < L.length && /^\s*\|/.test(L[i])) rows.push(cells(L[i++]));
+      out.push(`<div class="tbw"><table><thead><tr>${head.map(x => `<th>${inl(x)}</th>`).join("")}</tr></thead><tbody>${rows.map(r => `<tr>${r.map(x => `<td>${inl(x)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`);
+    }
+    else if (/^#{1,4}\s/.test(l)) { out.push(`<h4>${inl(l.replace(/^#+\s/, ""))}</h4>`); i++; }
+    else if (ul.test(l)) { const it = []; while (i < L.length && ul.test(L[i])) it.push(L[i++].replace(ul, "")); out.push("<ul>" + it.map(x => `<li>${inl(x)}</li>`).join("") + "</ul>"); }
+    else if (ol.test(l)) { const it = []; while (i < L.length && ol.test(L[i])) it.push(L[i++].replace(ol, "")); out.push("<ol>" + it.map(x => `<li>${inl(x)}</li>`).join("") + "</ol>"); }
+    else if (!l.trim()) i++;
+    else { const p = [L[i++]]; while (i < L.length && L[i].trim() && !stop.test(L[i])) p.push(L[i++]); out.push("<p>" + p.map(inl).join("<br>") + "</p>"); }
+  }
+  return out.join("");
+}
+
+/* ---------- Version and update history ---------- */
+const VERSION = "V5";
+const CHANGES = [
+  ["V5", "Chat answers now show tables, bold text and lists neatly. Replies can be selected and copied. Version number and update history added. Fixed the red chat text."],
+  ["V4", "Friendlier Nesty AI that explains in your own language, longer step-by-step lessons, unit exams, a study plan with phone reminders, gallery profile pictures, password reset by email link, a ChatGPT-style chat with voice input and natural AI voices, an animated opening screen with a connection check, and the Red Element credit."],
+  ["V3", "Nesty AI now finds working AI models by itself, and saved settings stay after updates."],
+  ["V2", "More reliable AI: Groq, Google and OpenRouter are tried in turn, with clearer problem messages."],
+  ["V1", "First release: welcome screens, accounts with email code and Google sign-in, course choice, lessons, Nesty AI chat, Help Center, Terms and Privacy."]
+];
+function about() {
+  sheet("About Nesty Languages", `<p><b>Version ${VERSION}</b><br>Created by Red Element<br>Support: isenyealvin@gmail.com</p><h3>What’s new</h3>` + CHANGES.map(([v, t]) => `<h3>${v}</h3><p>${esc(t)}</p>`).join(""));
 }
 
 /* ---------- Connection problems ---------- */

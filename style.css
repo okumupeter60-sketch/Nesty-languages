@@ -162,10 +162,10 @@ select{width:100%;border:2px solid var(--line);border-radius:14px;padding:15px;f
 .sg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .sg button{background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:14px;font:inherit;font-size:16px;color:var(--ink);text-align:left}
 .log2{display:flex;flex-direction:column;gap:18px}
-.msg.u{align-self:flex-end;max-width:85%;background:#f3f1ea;border-radius:20px;padding:10px 16px;white-space:pre-wrap}
-.msg.a{display:flex;gap:10px;align-items:flex-start}
-.msg .bd{flex:1;min-width:0}
-.msg .tx{white-space:pre-wrap;line-height:1.55}
+.cm.u{align-self:flex-end;max-width:85%;background:#f3f1ea;border-radius:20px;padding:10px 16px;white-space:pre-wrap}
+.cm.a{display:flex;gap:10px;align-items:flex-start}
+.cm .bd{flex:1;min-width:0}
+.cm .tx{line-height:1.55;user-select:text;-webkit-user-select:text}
 .av2{flex:none}.av2 .bot{width:30px;height:30px}.av2 .fl,.av2 .eye{animation:none}
 .act{display:flex;gap:4px;margin-top:4px}
 .act button{background:none;border:0;font-size:17px;padding:4px 8px;border-radius:8px;opacity:.7}
@@ -182,3 +182,15 @@ select{width:100%;border:2px solid var(--line);border-radius:14px;padding:15px;f
 @keyframes pl2{to{transform:scale(1.12)}}
 .ml{background:none;border:0;color:var(--mute);font:inherit;font-size:14px;padding:6px 8px}
 .fine.c{text-align:center}
+.cm.u{user-select:text;-webkit-user-select:text}
+.tx p{margin:0 0 10px}.tx h4{margin:12px 0 6px;font-size:17px}
+.tx ul,.tx ol{margin:0 0 10px;padding-left:22px}.tx li{margin-bottom:4px}
+.tx code{background:#f3f1ea;border-radius:6px;padding:2px 6px;font-size:.92em}
+.tx pre{background:#1d1a12;color:#fff6d6;border-radius:12px;padding:12px;overflow-x:auto;margin:0 0 10px}
+.tx pre code{background:none;padding:0;color:inherit}
+.tbw{overflow-x:auto;margin:6px 0 12px;border:1px solid var(--line);border-radius:12px}
+.tx table{border-collapse:collapse;width:100%;font-size:15px}
+.tx th{background:var(--soft);text-align:left;font-weight:800}
+.tx th,.tx td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+.tx tr:last-child td{border-bottom:0}
+.ver{text-align:center;color:var(--mute);font-size:13px;margin:16px 0 0}
