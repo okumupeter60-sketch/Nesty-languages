@@ -2,7 +2,7 @@ window.LEGAL = {
   terms: {
     t: "Terms of Service",
     h: `<p><small>Last updated: 20 November 2026</small></p>
-<h3>1. Welcome</h3><p>These Terms apply when you use Nesty Languages (“the app”, “we”, “us”). By creating an account or using the app you agree to these Terms and to our Privacy Policy.</p>
+<h3>1. Welcome</h3><p>These Terms apply when you use Nesty Languages (“the app”, “we”, “us”). Nesty Languages and Nesty AI are created and operated by Red Element. By creating an account or using the app you agree to these Terms and to our Privacy Policy.</p>
 <h3>2. Who can use the app</h3><p>You must be at least 13 years old. If you are under 18, use the app with the permission of a parent or guardian.</p>
 <h3>3. Your account</h3><p>Give accurate information and keep your password private. You are responsible for what happens on your account. Tell us quickly at isenyealvin@gmail.com if you think someone else has accessed it.</p>
 <h3>4. Fair use</h3><p>Do not misuse the app. This means no attacks on the service, no attempts to break into other accounts, no copying or reselling our content, no using Nesty AI to create harmful, hateful or illegal content, and no trying to get around limits or security.</p>
@@ -17,10 +17,10 @@ window.LEGAL = {
   privacy: {
     t: "Privacy Policy",
     h: `<p><small>Last updated: 20 November 2026</small></p>
-<h3>1. Who we are</h3><p>Nesty Languages is a language learning app. For privacy questions contact isenyealvin@gmail.com.</p>
-<h3>2. What we collect</h3><p>Your username, email address, chosen profile picture, and password (stored securely by our account provider; we never see it in plain text). Your course choice and learning progress (XP, streak, finished lessons). If you use Continue with Google, we receive your name and email from Google. Technical data such as IP address and device type is handled by our account and hosting providers to keep the service secure.</p>
+<h3>1. Who we are</h3><p>Nesty Languages is a language learning app created and operated by Red Element. For privacy questions contact isenyealvin@gmail.com.</p>
+<h3>2. What we collect</h3><p>Your username, email address, chosen profile picture, and password (stored securely by our account provider; we never see it in plain text). Your course choice and learning progress (XP, streak, finished lessons). If you add a profile photo, a small copy of it is stored in your account, and so are your study plan days and time. If you use Continue with Google, we receive your name and email from Google. Technical data such as IP address and device type is handled by our account and hosting providers to keep the service secure.</p>
 <h3>3. How we use it</h3><p>To create and protect your account, send verification codes and reset links, save your progress, and run the app. We do not show ads and we do not sell your data.</p>
-<h3>4. AI processing</h3><p>When you open a lesson or chat with Nesty AI, your request (for example the topic, your course languages and the messages you type) is sent to AI providers such as Google, Groq and OpenRouter so they can create the reply. Please do not type passwords, ID numbers or other sensitive details into the chat. Chat history is kept only on your device during your session and is not saved on our servers.</p>
+<h3>4. AI processing</h3><p>When you open a lesson or chat with Nesty AI, your request (for example the topic, your course languages and the messages you type) is sent to AI providers such as Google, Groq and OpenRouter so they can create the reply. Please do not type passwords, ID numbers or other sensitive details into the chat. Chat history is kept only on your device during your session and is not saved on our servers. If you use voice, your browser’s speech recognition turns your speech into text (in Chrome this is done by Google). When you listen to a Nesty AI reply, its text is sent to Google’s Gemini voice service to create the audio. We do not store your recordings.</p>
 <h3>5. Service providers</h3><p>We use Appwrite for accounts and progress, Cloudflare for hosting, Google for optional sign-in, and the AI providers named above. They process data for us under their own privacy terms.</p>
 <h3>6. Local storage</h3><p>The app stores a sign-in session and cached lessons in your browser so it works smoothly. We do not use advertising or tracking cookies.</p>
 <h3>7. Sharing</h3><p>We share data only with the providers above, or when the law requires it.</p>
