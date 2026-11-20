@@ -194,3 +194,8 @@ select{width:100%;border:2px solid var(--line);border-radius:14px;padding:15px;f
 .tx th,.tx td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
 .tx tr:last-child td{border-bottom:0}
 .ver{text-align:center;color:var(--mute);font-size:13px;margin:16px 0 0}
+.cb{border-radius:12px;overflow:hidden;margin:0 0 10px;background:#1d1a12}
+.ch{display:flex;justify-content:space-between;align-items:center;padding:6px 8px 6px 14px;background:#2c2618;color:#e9dfb8;font-size:13px}
+.ch button,.cpt{background:#f2b705;color:#1d1a12;border:0;border-radius:8px;padding:6px 12px;font:700 13px system-ui,sans-serif}
+.tx .cb pre{margin:0;border-radius:0;background:none;white-space:pre-wrap}
+.tw{margin:6px 0 12px}.tw .tbw{margin:6px 0 0}

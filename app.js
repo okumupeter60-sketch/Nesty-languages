@@ -427,9 +427,13 @@ function chat(mode) {
     if (r === "a") {
       d.innerHTML = `<span class="av2">${BOT}</span><div class="bd"><div class="tx"></div>${help ? "" : `<div class="act"><button data-s="1" aria-label="Listen">🔊</button><button data-cp="1" aria-label="Copy">📋</button></div>`}</div>`;
       d.querySelector(".tx").innerHTML = md(t);
+      d.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => {
+        const box = b.closest(".cb") || b.closest(".tw"), tbl = box.querySelector("table");
+        copyText(tbl ? [...tbl.rows].map(r => [...r.cells].map(x => x.textContent).join("\t")).join("\n") : box.querySelector("code").textContent, b);
+      });
       const s = d.querySelector("[data-s]"), c = d.querySelector("[data-cp]");
       if (s) s.onclick = () => say(t, P().to);
-      if (c) c.onclick = () => { try { navigator.clipboard.writeText(t); c.textContent = "✓"; } catch (e) { const a = document.createElement("textarea"); a.value = t; document.body.appendChild(a); a.select(); try { document.execCommand("copy"); c.textContent = "✓"; } catch (er) {} a.remove(); } };
+      if (c) c.onclick = () => copyText(t, c);
     } else d.textContent = t;
     log.appendChild(d); d.scrollIntoView({ block: "end" });
   };
@@ -537,6 +541,11 @@ function plan() {
 }
 
 /* ---------- Formatting for AI replies (tables, bold, lists, code) ---------- */
+function copyText(t, btn) {
+  const ok = () => { const old = btn.textContent; btn.textContent = old.includes("Copy") ? "Copied ✓" : "✓"; setTimeout(() => btn.textContent = old, 1500); };
+  const fallback = () => { const a = document.createElement("textarea"); a.value = t; document.body.appendChild(a); a.select(); try { document.execCommand("copy"); ok(); } catch (e) {} a.remove(); };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(ok, fallback); else fallback();
+}
 function md(src) {
   const inl = x => esc(x).replace(/`([^`]+)`/g, "<code>$1</code>").replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/(^|[\s(])\*([^*\s][^*]*?)\*(?=[\s).,!?:;]|$)/g, "$1<i>$2</i>");
   const L = String(src).replace(/\r/g, "").split("\n"), out = [];
@@ -546,11 +555,11 @@ function md(src) {
   let i = 0;
   while (i < L.length) {
     const l = L[i];
-    if (/^```/.test(l)) { const b = []; i++; while (i < L.length && !/^```/.test(L[i])) b.push(L[i++]); i++; out.push("<pre><code>" + esc(b.join("\n")) + "</code></pre>"); }
+    if (/^```/.test(l)) { const b = []; i++; while (i < L.length && !/^```/.test(L[i])) b.push(L[i++]); i++; out.push('<div class="cb"><div class="ch"><span>Text to copy</span><button data-copy>Copy</button></div><pre><code>' + esc(b.join("\n")) + "</code></pre></div>"); }
     else if (/^\s*\|/.test(l) && i + 1 < L.length && sep.test(L[i + 1])) {
       const head = cells(l), rows = []; i += 2;
       while (i < L.length && /^\s*\|/.test(L[i])) rows.push(cells(L[i++]));
-      out.push(`<div class="tbw"><table><thead><tr>${head.map(x => `<th>${inl(x)}</th>`).join("")}</tr></thead><tbody>${rows.map(r => `<tr>${r.map(x => `<td>${inl(x)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`);
+      out.push(`<div class="tw"><button class="cpt" data-copy>Copy table</button><div class="tbw"><table><thead><tr>${head.map(x => `<th>${inl(x)}</th>`).join("")}</tr></thead><tbody>${rows.map(r => `<tr>${r.map(x => `<td>${inl(x)}</td>`).join("")}</tr>`).join("")}</tbody></table></div></div>`);
     }
     else if (/^#{1,4}\s/.test(l)) { out.push(`<h4>${inl(l.replace(/^#+\s/, ""))}</h4>`); i++; }
     else if (ul.test(l)) { const it = []; while (i < L.length && ul.test(L[i])) it.push(L[i++].replace(ul, "")); out.push("<ul>" + it.map(x => `<li>${inl(x)}</li>`).join("") + "</ul>"); }
@@ -562,8 +571,9 @@ function md(src) {
 }
 
 /* ---------- Version and update history ---------- */
-const VERSION = "V5";
+const VERSION = "V6";
 const CHANGES = [
+  ["V6", "Copy boxes: tables get a Copy table button, and text you ask Nesty AI to write appears in a box with a Copy button."],
   ["V5", "Chat answers now show tables, bold text and lists neatly. Replies can be selected and copied. Version number and update history added. Fixed the red chat text."],
   ["V4", "Friendlier Nesty AI that explains in your own language, longer step-by-step lessons, unit exams, a study plan with phone reminders, gallery profile pictures, password reset by email link, a ChatGPT-style chat with voice input and natural AI voices, an animated opening screen with a connection check, and the Red Element credit."],
   ["V3", "Nesty AI now finds working AI models by itself, and saved settings stay after updates."],
